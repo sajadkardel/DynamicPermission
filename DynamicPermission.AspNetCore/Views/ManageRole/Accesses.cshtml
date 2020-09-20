@@ -1,0 +1,23 @@
+﻿@model IList<System.Security.Claims.Claim>
+@{
+    ViewData["Title"] = "Accesses";
+}
+
+<h1>Accesses</h1>
+
+@if (Model.Any())
+{
+    for (int i = 0; i < Model.Count; i++)
+    {
+        <div class="card mt-2">
+            <div class="card-header">
+                Permission : <b>@Model[i].Type</b>
+            </div>
+        </div>
+    }
+
+}
+else
+{
+    <h1>دسترسی ای یافت نشد</h1>
+}
