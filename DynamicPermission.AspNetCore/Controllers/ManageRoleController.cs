@@ -95,7 +95,7 @@ namespace DynamicPermission.AspNetCore.Controllers
             var requestPermissions = model.RolePermissions.Where(r => r.IsSelected).ToList();
             foreach (var requestPermission in requestPermissions)
             {
-                var result = await _roleManager.AddClaimAsync(role, new Claim(requestPermission.PermissionName, true.ToString()));
+                var result = await _roleManager.AddClaimAsync(role, new Claim(requestPermission.PermissionName.ToUpper(), true.ToString()));
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);

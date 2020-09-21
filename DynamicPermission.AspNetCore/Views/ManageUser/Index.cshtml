@@ -23,6 +23,9 @@
                 <a asp-controller="ManageUser" asp-action="RemoveUserFromRole" asp-route-id="@Model[i].Id"
                    class="btn btn-primary">Remove From role</a>
                 
+                <a asp-controller="ManageUser" asp-action="UpdateSecurityStamp" asp-route-id="@Model[i].Id"
+                   class="btn btn-warning">Update Security Stamp</a>
+
                 <a asp-controller="ManageUser" asp-action="DeleteUser" asp-route-id="@Model[i].Id"
                    class="btn btn-danger">Delete User</a>
 

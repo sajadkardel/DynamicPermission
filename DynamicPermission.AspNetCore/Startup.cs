@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DynamicPermission.AspNetCore.BaseSetting.Identity;
+using DynamicPermission.AspNetCore.BaseSetting.Identity.PermissionManager;
 using DynamicPermission.AspNetCore.Context;
 using DynamicPermission.AspNetCore.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -59,12 +62,32 @@ namespace DynamicPermission.AspNetCore
                 .AddDefaultTokenProviders()
                 .AddErrorDescriber<PersianIdentityErrorDescriber>();
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.AccessDeniedPath = "/AccessDenied";
+                options.Cookie.Name = "IdentityCookie";
+                options.LoginPath = "/Login";
+                options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+            });
+
+            services.Configure<SecurityStampValidatorOptions>(option =>
+            {
+                option.ValidationInterval = TimeSpan.FromMinutes(30);
+            });
+
+            services.AddAuthorization(option =>
+            {
+                option.AddPolicy("DynamicPermission", policy => policy.Requirements.Add(new PermissionRequirement()));
+            });
 
             #endregion
 
             #region Services
 
+            services.AddMemoryCache();
+            services.AddHttpContextAccessor();
             services.AddScoped<IUtilities, Utilities>();
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
             #endregion
 

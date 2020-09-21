@@ -60,6 +60,17 @@ namespace DynamicPermission.AspNetCore.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> UpdateSecurityStamp(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+            await _userManager.UpdateSecurityStampAsync(user);
+            return RedirectToAction("Index");
+        }
+
+        #region AddUserToRole
 
         [HttpGet]
         public async Task<IActionResult> AddUserToRole(string id)
@@ -100,6 +111,10 @@ namespace DynamicPermission.AspNetCore.Controllers
             return View(model);
         }
 
+        #endregion
+
+        #region RemoveUserFromRole
+
         [HttpGet]
         public async Task<IActionResult> RemoveUserFromRole(string id)
         {
@@ -134,5 +149,7 @@ namespace DynamicPermission.AspNetCore.Controllers
 
             return View(model);
         }
+
+        #endregion
     }
 }
