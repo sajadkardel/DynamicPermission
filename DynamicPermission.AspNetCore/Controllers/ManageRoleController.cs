@@ -91,7 +91,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
 
-        public async Task<IActionResult> Accesses(string id)
+        public async Task<IActionResult> Permissions(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
             var claims = await _roleManager.GetClaimsAsync(role);

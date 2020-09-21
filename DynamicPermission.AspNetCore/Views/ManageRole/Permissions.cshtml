@@ -1,9 +1,9 @@
 ﻿@model IList<System.Security.Claims.Claim>
 @{
-    ViewData["Title"] = "Accesses";
+    ViewData["Title"] = "Permissions";
 }
 
-<h1>Accesses</h1>
+    <h1>Permissions</h1>
 
 @if (Model.Any())
 {
@@ -19,5 +19,5 @@
 }
 else
 {
-    <h1>دسترسی ای یافت نشد</h1>
+    <h1>No Found Permission</h1>
 }

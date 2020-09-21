@@ -16,15 +16,13 @@
             </div>
             <div class="card-footer">
 
-                <a asp-controller="ManageUser" asp-action="DeleteUser" asp-route-id="@Model[i].Id"
-                   class="btn btn-danger">Delete User</a>
-
                 <a asp-controller="ManageUser" asp-action="AddUserToRole" asp-route-id="@Model[i].Id"
                    class="btn btn-primary">Add to role</a>
                 <a asp-controller="ManageUser" asp-action="RemoveUserFromRole" asp-route-id="@Model[i].Id"
                    class="btn btn-primary">Remove From role</a>
-
-                <button type="submit" class="btn btn-danger">Delete user</button>
+                
+                <a asp-controller="ManageUser" asp-action="DeleteUser" asp-route-id="@Model[i].Id"
+                   class="btn btn-danger">Delete User</a>
 
             </div>
         </div>
@@ -33,5 +31,5 @@
 }
 else
 {
-    <h1>کاربری یافت نشد</h1>
+<h1>No User Found.</h1>
 }

@@ -24,8 +24,9 @@ namespace DynamicPermission.AspNetCore.Controllers
         public IActionResult Index()
         {
             var model = _dbContext.AppSettings.ToList();
-            return View();
+            return View(model);
         }
+
         [HttpGet]
         public IActionResult RoleValidationGuid()
         {
