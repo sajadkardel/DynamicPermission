@@ -7,6 +7,7 @@ using DynamicPermission.AspNetCore.Context;
 using DynamicPermission.AspNetCore.Services;
 using DynamicPermission.AspNetCore.ViewModels.ManageRole;
 using DynamicPermission.AspNetCore.ViewModels.ManageUser;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -95,7 +96,7 @@ namespace DynamicPermission.AspNetCore.Controllers
             var requestPermissions = model.RolePermissions.Where(r => r.IsSelected).ToList();
             foreach (var requestPermission in requestPermissions)
             {
-                var result = await _roleManager.AddClaimAsync(role, new Claim(requestPermission.PermissionName.ToUpper(), true.ToString()));
+                var result = await _roleManager.AddClaimAsync(role, new Claim(requestPermission.PermissionName, true.ToString()));
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);

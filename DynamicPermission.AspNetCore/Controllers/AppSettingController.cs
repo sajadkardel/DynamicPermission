@@ -2,6 +2,7 @@
 using System.Linq;
 using DynamicPermission.AspNetCore.Context;
 using DynamicPermission.AspNetCore.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 

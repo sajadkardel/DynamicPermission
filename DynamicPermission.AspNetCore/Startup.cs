@@ -64,15 +64,15 @@ namespace DynamicPermission.AspNetCore
 
             services.ConfigureApplicationCookie(options =>
             {
-                options.AccessDeniedPath = "/AccessDenied";
+                options.LoginPath="/Account/Login";
+                options.LogoutPath="/Account/LogOut";
                 options.Cookie.Name = "IdentityCookie";
-                options.LoginPath = "/Login";
-                options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+                //options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
             });
 
             services.Configure<SecurityStampValidatorOptions>(option =>
             {
-                option.ValidationInterval = TimeSpan.FromMinutes(30);
+                option.ValidationInterval = TimeSpan.FromMinutes(20);
             });
 
             services.AddAuthorization(option =>
@@ -101,6 +101,7 @@ namespace DynamicPermission.AspNetCore
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthentication();

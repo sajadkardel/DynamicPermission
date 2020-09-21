@@ -26,7 +26,7 @@ namespace DynamicPermission.AspNetCore.Controllers
                 return RedirectToAction("Index", "Home");
 
             ViewData["returnUrl"] = returnUrl;
-            return View(returnUrl);
+            return View(model:returnUrl);
         }
 
         [HttpPost]
@@ -51,7 +51,7 @@ namespace DynamicPermission.AspNetCore.Controllers
                 ModelState.AddModelError(string.Empty, "رمزعبور یا نام کاربری اشتباه است");
             }
 
-            return View(returnUrl);
+            return View(model:returnUrl);
         }
 
         [HttpPost]
@@ -61,5 +61,12 @@ namespace DynamicPermission.AspNetCore.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
+
+       
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
     }
 }

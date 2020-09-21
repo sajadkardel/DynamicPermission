@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace DynamicPermission.AspNetCore.BaseSetting.Identity.PermissionManager
@@ -24,7 +25,12 @@ namespace DynamicPermission.AspNetCore.BaseSetting.Identity.PermissionManager
         private readonly UserManager<IdentityUser> _userManager;
         private readonly AppDbContext _dbContext;
 
-        public PermissionHandler(IHttpContextAccessor contextAccessor, IUtilities utilities, IMemoryCache memoryCache, IDataProtectionProvider dataProtectionProvider, SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, AppDbContext appDbContext)
+        public PermissionHandler(IHttpContextAccessor contextAccessor,
+            IUtilities utilities, IMemoryCache memoryCache,
+            IDataProtectionProvider dataProtectionProvider, 
+            SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager,
+            AppDbContext appDbContext)
         {
             _contextAccessor = contextAccessor;
             _utilities = utilities;
@@ -47,14 +53,7 @@ namespace DynamicPermission.AspNetCore.BaseSetting.Identity.PermissionManager
                 return _utilities.DataBaseRoleValidationGuid();
             });
 
-            var allAreasName = _memoryCache.GetOrCreate("allAreasName", p =>
-            {
-                p.AbsoluteExpiration = DateTimeOffset.MaxValue;
-                return _utilities.GetAllAreasNames();
-            });
-
-            SplitUserRequestedUrl(httpContext.Request.Path.ToString(), allAreasName,
-                out var areaAndActionAndControllerName);
+            SplitUserRequestedUrl(httpContext, out var areaAndActionAndControllerName);
 
             UnprotectRvgCookieData(httpContext, out var unprotectedRvgCookie);
 
@@ -67,45 +66,27 @@ namespace DynamicPermission.AspNetCore.BaseSetting.Identity.PermissionManager
 
                 await _signInManager.RefreshSignInAsync(user);
 
-                //var userRolesId = _dbContext.UserRoles.AsNoTracking()
-                //    .Where(r => r.UserId == userId)
-                //    .Select(r => r.RoleId)
-                //    .ToList();
-                //if (!userRolesId.Any()) return;
-                //var userHasClaims = _dbContext.RoleClaims.AsNoTracking().Any(rc =>
-                //    userRolesId.Contains(rc.RoleId) && rc.ClaimType == areaAndActionAndControllerName);
-                //if (userHasClaims) context.Succeed(requirement);
+                var userRolesId = _dbContext.UserRoles.AsNoTracking()
+                    .Where(r => r.UserId == userId)
+                    .Select(r => r.RoleId)
+                    .ToList();
+                if (!userRolesId.Any()) return;
+                var userHasClaims = _dbContext.RoleClaims.AsNoTracking().Any(rc =>
+                    userRolesId.Contains(rc.RoleId) && rc.ClaimType == areaAndActionAndControllerName);
+                if (userHasClaims) context.Succeed(requirement);
             }
             else if (httpContext.User.HasClaim(areaAndActionAndControllerName, true.ToString()))
                 context.Succeed(requirement);
-
-            return;
         }
 
         #region Methods
 
-        private void SplitUserRequestedUrl(string url, IList<string> areaNames,
-            out string areaAndControllerAndActionName)
+        private void SplitUserRequestedUrl(HttpContext httpContext, out string areaAndControllerAndActionName)
         {
-            var requestedUrl = url.Split('/')
-                .Where(t => !string.IsNullOrEmpty(t)).ToList();
-            var urlCount = requestedUrl.Count;
-            if (urlCount != 0 &&
-                areaNames.Any(t => t.Equals(requestedUrl[0], StringComparison.CurrentCultureIgnoreCase)))
-            {
-                var areaName = requestedUrl[0];
-                var controllerName = (urlCount == 1) ? "HomeController" : requestedUrl[1] + "Controller";
-                var actionName = (urlCount > 2) ? requestedUrl[2] : "Index";
-                areaAndControllerAndActionName = $"{areaName}|{controllerName}|{actionName}".ToUpper();
-            }
-            else
-            {
-                var areaName = "NoArea";
-                var controllerName = (urlCount == 0) ? "HomeController" : requestedUrl[0] + "Controller";
-                var actionName = (urlCount > 1) ? requestedUrl[1] : "Index";
-                areaAndControllerAndActionName = $"{areaName}|{controllerName}|{actionName}".ToUpper();
-            }
-
+            var areaName = httpContext.Request.RouteValues["area"]?.ToString() ?? "NoArea";
+            var controllerName = httpContext.Request.RouteValues["controller"] + "Controller";
+            var actionName = httpContext.Request.RouteValues["action"].ToString();
+            areaAndControllerAndActionName = $"{areaName}|{controllerName}|{actionName}";
         }
 
         private void UnprotectRvgCookieData(HttpContext httpContext, out string unprotectedRvgCookie)
