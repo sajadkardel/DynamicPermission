@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DynamicPermission.AspNetCore.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,32 +20,26 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Login(string returnUrl = null)
+        public IActionResult Login(string returnUrl = null)
         {
             if (_signInManager.IsSignedIn(User))
                 return RedirectToAction("Index", "Home");
 
-            var model = new LoginViewModel()
-            {
-                ReturnUrl = returnUrl
-            };
-
             ViewData["returnUrl"] = returnUrl;
-            return View(model);
+            return View(returnUrl);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        public async Task<IActionResult> Login(string userName,string password,bool rememberMe, string returnUrl = null)
         {
             if (_signInManager.IsSignedIn(User))
                 return RedirectToAction("Index", "Home");
 
-            model.ReturnUrl = returnUrl;
             ViewData["returnUrl"] = returnUrl;
 
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe,false);
+                var result = await _signInManager.PasswordSignInAsync(userName, password, rememberMe,false);
                 if (result.Succeeded)
                 {
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -58,7 +51,7 @@ namespace DynamicPermission.AspNetCore.Controllers
                 ModelState.AddModelError(string.Empty, "رمزعبور یا نام کاربری اشتباه است");
             }
 
-            return View(model);
+            return View(returnUrl);
         }
 
         [HttpPost]

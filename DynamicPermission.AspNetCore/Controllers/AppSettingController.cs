@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using DynamicPermission.AspNetCore.Context;
 using DynamicPermission.AspNetCore.Models;
-using DynamicPermission.AspNetCore.ViewModels.AppSetting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -30,23 +27,14 @@ namespace DynamicPermission.AspNetCore.Controllers
         [HttpGet]
         public IActionResult RoleValidationGuid()
         {
-            var roleValidationGuidSiteSetting =
-                _dbContext.AppSettings.FirstOrDefault(t => t.Key == "RoleValidationGuid");
-
-            var model = new RoleValidationGuidViewModel()
-            {
-                Value = roleValidationGuidSiteSetting?.Value,
-                LastTimeChanged = roleValidationGuidSiteSetting?.LastTimeChanged
-            };
-
-            return View(model);
+            var roleValidationGuidSiteSetting = _dbContext.AppSettings.FirstOrDefault(t => t.Key == "RoleValidationGuid");
+            return View(roleValidationGuidSiteSetting);
         }
 
-        [HttpPost]
-        public IActionResult RoleValidationGuid(RoleValidationGuidViewModel model)
+        [HttpGet]
+        public IActionResult GenerateNewGuid()
         {
-            var roleValidationGuidSiteSetting =
-                _dbContext.AppSettings.FirstOrDefault(t => t.Key == "RoleValidationGuid");
+            var roleValidationGuidSiteSetting = _dbContext.AppSettings.FirstOrDefault(t => t.Key == "RoleValidationGuid");
 
             if (roleValidationGuidSiteSetting == null)
             {

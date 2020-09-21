@@ -1,21 +1,19 @@
-﻿@model DynamicPermission.AspNetCore.ViewModels.AppSetting.RoleValidationGuidViewModel
+﻿@model DynamicPermission.AspNetCore.Models.AppSetting
 @{
     ViewData["Title"] = "RoleValidationGuid";
 }
 
 <h1>RoleValidationGuid</h1>
 
-<form asp-controller="AppSetting" asp-action="RoleValidationGuid" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="form-group">
-        <label class="control-label" asp-for="@Model.Value"></label>
-        <input readonly="readonly" class="form-control" asp-for="@Model.Value" />
-    </div>
-    <div class="form-group">
-        <label class="control-label" asp-for="@Model.LastTimeChanged"></label>
-        <input readonly="readonly" class="form-control" asp-for="@Model.LastTimeChanged" />
-    </div>
+<div class="form-group">
+    <label class="control-label" asp-for="@Model.Value"></label>
+    <input readonly="readonly" class="form-control" asp-for="@Model.Value" />
+</div>
+<div class="form-group">
+    <label class="control-label" asp-for="@Model.LastTimeChanged"></label>
+    <input readonly="readonly" class="form-control" asp-for="@Model.LastTimeChanged" />
+</div>
 
-    <button class="btn btn-primary" type="submit">Generate New Guid</button>
-</form>
+<a asp-controller="AppSetting" asp-action="GenerateNewGuid" class="btn btn-primary">Generate New Guid</a>

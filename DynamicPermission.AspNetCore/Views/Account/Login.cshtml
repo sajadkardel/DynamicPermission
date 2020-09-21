@@ -1,4 +1,4 @@
-﻿@model DynamicPermission.AspNetCore.ViewModels.Account.LoginViewModel
+﻿@model string
 
 @{
     ViewData["Title"] = "Login";
@@ -16,26 +16,22 @@
             <div class="text-danger">@ViewData["ErrorMessage"]</div>
         }
 
-        <label asp-for="UserName" class="col-md-2 control-label"></label>
+        <label class="col-md-2 control-label">UserName</label>
         <div class="col-md-10">
-            <input asp-for="UserName" class="form-control"/>
-            <span asp-validation-for="UserName" class="text-danger"></span>
+            <input name="userName" class="form-control" />
+        </div>
+        <label class="col-md-2 control-label">Password</label>
+        <div class="col-md-10">
+            <input name="password" class="form-control" />
         </div>
 
-        <label asp-for="Password" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Password" class="form-control"/>
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-
-        <br/>
-
+        <br />
         <div class="form-group">
-            <label asp-for="RememberMe"></label>
-            <input asp-for="RememberMe"/>
-            <span asp-validation-for="RememberMe"></span>
+            <label class="col-md-2 control-label>RememberMe</label>
+            <input name="rememberMe" class="form-control" />
         </div>
 
         <button type="submit" class="btn btn-primary">submit</button>
+
     </form>
 </div>

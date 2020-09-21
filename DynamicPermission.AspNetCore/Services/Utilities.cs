@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DynamicPermission.AspNetCore.Context;
 using DynamicPermission.AspNetCore.Models;
+using DynamicPermission.AspNetCore.ViewModels.ServiceViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DynamicPermission.AspNetCore.Services
@@ -19,7 +20,7 @@ namespace DynamicPermission.AspNetCore.Services
             _dbContext = dbContext;
         }
 
-        public IList<ActionAndControllerName> AreaAndControllerAndActionName()
+        public IList<AreaControllerActionName> AreaAndControllerAndActionName()
         {
             Assembly asm = Assembly.GetExecutingAssembly();
             var contradistinction = asm.GetTypes()
@@ -33,13 +34,13 @@ namespace DynamicPermission.AspNetCore.Services
                     Area = x.DeclaringType?.CustomAttributes.Where(c => c.AttributeType == typeof(AreaAttribute))
                 });
 
-            var list = new List<ActionAndControllerName>();
+            var list = new List<AreaControllerActionName>();
 
             foreach (var item in contradistinction)
             {
                 if (item.Area.Count() != 0)
                 {
-                    list.Add(new ActionAndControllerName()
+                    list.Add(new AreaControllerActionName()
                     {
                         ControllerName = item.Controller,
                         ActionName = item.Action,
@@ -48,7 +49,7 @@ namespace DynamicPermission.AspNetCore.Services
                 }
                 else
                 {
-                    list.Add(new ActionAndControllerName()
+                    list.Add(new AreaControllerActionName()
                     {
                         ControllerName = item.Controller,
                         ActionName = item.Action,

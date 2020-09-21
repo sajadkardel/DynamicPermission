@@ -1,12 +1,11 @@
-﻿@model List<DynamicPermission.AspNetCore.ViewModels.ManageRole.IndexViewModel>
+﻿@model List<Microsoft.AspNetCore.Identity.IdentityRole>
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>ManageRole</h1>
 
 <a asp-controller="ManageRole" asp-action="AddRole" class="btn btn-success">Add Role</a>
-
 
 @if (Model.Any())
 {
@@ -14,15 +13,21 @@
     {
         <div class="card mt-2">
             <div class="card-header">
-                Name = @Model[i].RoleName
+                Name = @Model[i].Name
             </div>
 
             <div class="card-footer">
-                <a asp-controller="ManageRole" asp-action="Permissions" asp-route-id="@Model[i].RoleId"
-                   class="btn btn-primary">Permissions</a>
 
-                <a asp-controller="ManageRole" asp-action="DeleteRole" asp-route-id="@Model[i].RoleId"
+                <a asp-controller="ManageRole" asp-action="AddPermissionToRole" asp-route-id="@Model[i].Id"
+                   class="btn btn-primary">Add To Permission</a>
+
+                <a asp-controller="ManageRole" asp-action="RemovePermissionFromRole" asp-route-id="@Model[i].Id"
+                   class="btn btn-primary">Remove From Permission</a>
+
+                <a asp-controller="ManageRole" asp-action="DeleteRole" asp-route-id="@Model[i].Id"
                    class="btn btn-danger">Delete Role</a>
+
+
             </div>
 
         </div>

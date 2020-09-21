@@ -62,7 +62,11 @@ namespace DynamicPermission.AspNetCore
 
             #endregion
 
+            #region Services
+
             services.AddScoped<IUtilities, Utilities>();
+
+            #endregion
 
         }
 

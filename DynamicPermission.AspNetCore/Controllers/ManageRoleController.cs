@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DynamicPermission.AspNetCore.Context;
 using DynamicPermission.AspNetCore.Services;
 using DynamicPermission.AspNetCore.ViewModels.ManageRole;
+using DynamicPermission.AspNetCore.ViewModels.ManageUser;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace DynamicPermission.AspNetCore.Controllers
@@ -27,75 +30,25 @@ namespace DynamicPermission.AspNetCore.Controllers
         public IActionResult Index()
         {
             var roles = _roleManager.Roles.ToList();
-            var model = new List<IndexViewModel>();
-            foreach (var role in roles)
-            {
-                model.Add(new IndexViewModel()
-                {
-                    RoleName = role.Name,
-                    RoleId = role.Id
-                });
-            }
-            return View(model);
+            return View(roles);
         }
 
         [HttpGet]
         public IActionResult AddRole()
         {
-            var allMvcNames =
-                _memoryCache.GetOrCreate("AreaAndActionAndControllerNamesList", p =>
-                {
-                    p.AbsoluteExpiration = DateTimeOffset.MaxValue;
-                    return _utilities.AreaAndControllerAndActionName();
-                });
-            var model = new AddRoleViewModel()
-            {
-                ActionAndControllerNames = allMvcNames
-            };
-
-            return View(model);
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddRole(AddRoleViewModel model)
+        public async Task<IActionResult> AddRole(IdentityRole model)
         {
-            if (ModelState.IsValid)
+            var result = await _roleManager.CreateAsync(model);
+            foreach (var error in result.Errors)
             {
-                var role = new IdentityRole(model.RoleName);
-                var result = await _roleManager.CreateAsync(role);
-                if (result.Succeeded)
-                {
-                    var requestRoles =
-                        model.ActionAndControllerNames.Where(c => c.IsSelected).ToList();
-                    foreach (var requestRole in requestRoles)
-                    {
-                        var areaName = (string.IsNullOrEmpty(requestRole.AreaName)) ?
-                            "NoArea" : requestRole.AreaName;
-
-                        await _roleManager.AddClaimAsync(role,
-                            new Claim($"{areaName}|{requestRole.ControllerName}|{requestRole.ActionName}",
-                                true.ToString()));
-                    }
-
-
-                    return RedirectToAction("Index");
-                }
-
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
+                ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            return View(model);
-        }
-
-
-        public async Task<IActionResult> Permissions(string id)
-        {
-            var role = await _roleManager.FindByIdAsync(id);
-            var claims = await _roleManager.GetClaimsAsync(role);
-            return View(claims);
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> DeleteRole(string id)
@@ -107,5 +60,92 @@ namespace DynamicPermission.AspNetCore.Controllers
 
             return RedirectToAction("Index");
         }
+
+        #region AddPermissionToRole
+
+        [HttpGet]
+        public async Task<IActionResult> AddPermissionToRole(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null) return NotFound();
+            var permissions = _utilities.AreaAndControllerAndActionName().ToList();
+            List<string> permissionTypes = new List<string>();
+            foreach (var actionAndControllerName in permissions)
+            {
+                var areaName = (string.IsNullOrEmpty(actionAndControllerName.AreaName)) ? "NoArea" : actionAndControllerName.AreaName;
+                permissionTypes.Add($"{areaName}|{actionAndControllerName.ControllerName}|{actionAndControllerName.ActionName}");
+            }
+            var rolePermissions = await _roleManager.GetClaimsAsync(role);
+            var rolePermissionTypes = rolePermissions.Select(claim => claim.Type).ToList();
+            var validPermissions = permissionTypes.Where(r => !rolePermissionTypes.Contains(r))
+                .Select(r => new RolePermissionViewModel(r)).ToList();
+            var model = new AddPermissionToRoleViewModel(id, validPermissions);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPermissionToRole(AddPermissionToRoleViewModel model)
+        {
+            if (model == null) return NotFound();
+            var role = await _roleManager.FindByIdAsync(model.RoleId);
+            if (role == null) return NotFound();
+            var requestPermissions = model.RolePermissions.Where(r => r.IsSelected).ToList();
+            foreach (var requestPermission in requestPermissions)
+            {
+                var result = await _roleManager.AddClaimAsync(role, new Claim(requestPermission.PermissionName, true.ToString()));
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                    return View(model);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        #endregion
+
+        #region RemovePermissionFromRole
+
+        [HttpGet]
+        public async Task<IActionResult> RemovePermissionFromRole(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null) return NotFound();
+
+            var rolePermissions = await _roleManager.GetClaimsAsync(role);
+            var validRoles = rolePermissions.Select(r => new RolePermissionViewModel(r.Type)).ToList();
+            var model = new AddPermissionToRoleViewModel(id, validRoles);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemovePermissionFromRole(AddPermissionToRoleViewModel model)
+        {
+            if (model == null) return NotFound();
+            var role = await _roleManager.FindByIdAsync(model.RoleId);
+            if (role == null) return NotFound();
+            var requestPermissions = model.RolePermissions.Where(r => r.IsSelected)
+                .Select(u => u.PermissionName).ToList();
+            foreach (var requestPermission in requestPermissions)
+            {
+                var result = await _roleManager.RemoveClaimAsync(role, new Claim(requestPermission, true.ToString()));
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
+            }
+
+            return RedirectToAction("index");
+        }
+
+        #endregion
+
     }
 }

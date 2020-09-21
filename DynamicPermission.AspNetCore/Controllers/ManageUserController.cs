@@ -21,13 +21,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
         public IActionResult Index()
         {
-            var model = _userManager.Users
-                .Select(u => new IndexViewModel
-                {
-                    Id = u.Id,
-                    UserName = u.UserName
-                }).ToList();
-
+            var model = _userManager.Users.ToList();
             return View(model);
         }
 

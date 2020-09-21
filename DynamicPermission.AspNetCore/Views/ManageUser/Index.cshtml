@@ -1,8 +1,10 @@
-﻿@model List<DynamicPermission.AspNetCore.ViewModels.ManageUser.IndexViewModel>
+﻿@model List<Microsoft.AspNetCore.Identity.IdentityUser>
 @{
     ViewData["Title"] = "Index";
 }
 
+
+<h1>ManageUser</h1>
 
 <a asp-controller="ManageUser" asp-action="AddUser" class="btn btn-success">Add User</a>
 

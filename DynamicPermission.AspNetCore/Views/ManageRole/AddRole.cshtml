@@ -1,4 +1,4 @@
-﻿@model DynamicPermission.AspNetCore.ViewModels.ManageRole.AddRoleViewModel
+﻿@model Microsoft.AspNetCore.Identity.IdentityRole
 
 @{
     ViewData["Title"] = "AddRole";
@@ -8,38 +8,9 @@
 <form asp-controller="ManageRole" asp-action="AddRole" method="post">
 
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
     <label class="control-label">RoleName : </label>
-    <input asp-for="RoleName" />
-    <span class="text-danger" asp-validation-for="RoleName"></span>
-
-    <br />
-    <hr />
-    
-    <label class="control-label">RolePermission : </label>
-
-    @for (int i = 0; i < Model.ActionAndControllerNames.Count; i++)
-    {
-
-
-        <div class="card mt-2">
-
-            <input type="hidden" readonly="readonly" asp-for="ActionAndControllerNames[i].ActionName" />
-            <input type="hidden" readonly="readonly" asp-for="ActionAndControllerNames[i].ControllerName" />
-            <input type="hidden" readonly="readonly" asp-for="ActionAndControllerNames[i].AreaName" />
-
-            <div class="card-footer">
-                <input asp-for="ActionAndControllerNames[i].IsSelected" />
-                <label for="ActionAndControllerNames_@(i)__IsSelected">
-                    @(Model.ActionAndControllerNames[i].AreaName ?? "NoArea") -
-                    @Model.ActionAndControllerNames[i].ControllerName -
-                    @Model.ActionAndControllerNames[i].ActionName
-                </label>
-            </div>
-
-        </div>
-    }
-    
-    <br/>
+    <input asp-for="Name" />
 
     <button type="submit" class="btn btn-primary">Submit</button>
 
