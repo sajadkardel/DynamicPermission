@@ -1,13 +1,15 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using DynamicPermission.AspNetCore.Context;
-using DynamicPermission.AspNetCore.Models;
+using DynamicPermission.AspNetCore.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace DynamicPermission.AspNetCore.Controllers
 {
+    [DisplayName("AppSettingController(just for show)")]
     public class AppSettingController : Controller
     {
         private readonly AppDbContext _dbContext;
@@ -19,6 +21,7 @@ namespace DynamicPermission.AspNetCore.Controllers
             _memoryCache = memoryCache;
         }
 
+        [DisplayName("Index(just for show)")]
         public IActionResult Index()
         {
             var model = _dbContext.AppSettings.ToList();
@@ -26,6 +29,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpGet]
+        [DisplayName("RoleValidationGuid(just for show)")]
         public IActionResult RoleValidationGuid()
         {
             var roleValidationGuidSiteSetting = _dbContext.AppSettings.FirstOrDefault(t => t.Key == "RoleValidationGuid");
@@ -33,6 +37,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpGet]
+        [DisplayName("GenerateNewGuid(just for show)")]
         public IActionResult GenerateNewGuid()
         {
             var roleValidationGuidSiteSetting = _dbContext.AppSettings.FirstOrDefault(t => t.Key == "RoleValidationGuid");

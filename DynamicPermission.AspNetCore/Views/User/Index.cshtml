@@ -1,0 +1,61 @@
+﻿@model List<Microsoft.AspNetCore.Identity.IdentityUser>
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<h1>User</h1>
+
+<a asp-controller="User" asp-action="Add" class="btn btn-success">Add User</a>
+
+@{
+    if (!Model.Any())
+    {
+        <h3>No User Found.</h3>
+    }
+    else
+    {
+        foreach (var identityUser in Model)
+        {
+            <div class="card mt-2">
+                <div class="card-header">
+                    User Name : <b>@identityUser.UserName</b>
+                </div>
+                <div class="card-footer">
+
+                    @{
+                        var isAdd = new Dictionary<string, string>
+                        {
+                            {"id", identityUser.Id},
+                            {"isAdd", "true"}
+                        };
+
+                        var isRemove = new Dictionary<string, string>
+                        {
+                            {"id", identityUser.Id},
+                            {"isAdd", "false"}
+                        };
+
+                        var data = new Dictionary<string, string>
+                        {
+                            {"id",identityUser.Id}
+                        };
+                    }
+
+                    <a asp-controller="User" asp-action="UserRoles" asp-all-route-data="isAdd"
+                       class="btn btn-primary">Add to role</a>
+
+                    <a asp-controller="User" asp-action="UserRoles" asp-all-route-data="isRemove"
+                       class="btn btn-primary">Remove From role</a>
+
+                    <a asp-controller="User" asp-action="UpdateSecurityStamp" asp-all-route-data="data"
+                       class="btn btn-warning">Update Security Stamp</a>
+
+                    <a asp-controller="User" asp-action="Delete" asp-all-route-data="data"
+                       class="btn btn-danger">Delete User</a>
+
+                </div>
+            </div>
+        }
+    }
+}

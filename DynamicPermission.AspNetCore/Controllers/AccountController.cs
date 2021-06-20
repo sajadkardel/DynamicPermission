@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +11,7 @@ using Microsoft.VisualStudio.Web.CodeGeneration.Utils.Messaging;
 namespace DynamicPermission.AspNetCore.Controllers
 {
     [AllowAnonymous]
+    [DisplayName("AccountController(just for show)")]
     public class AccountController : Controller
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -20,6 +22,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpGet]
+        [DisplayName("Login(just for show)")]
         public IActionResult Login(string returnUrl = null)
         {
             if (_signInManager.IsSignedIn(User))
@@ -56,6 +59,7 @@ namespace DynamicPermission.AspNetCore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [DisplayName("LogOut(just for show)")]
         public async Task<IActionResult> LogOut()
         {
             await _signInManager.SignOutAsync();

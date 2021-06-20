@@ -1,0 +1,58 @@
+﻿@model DynamicPermission.AspNetCore.ViewModels.Role.RoleClaimsViewModel
+
+<h1>Role Permissions</h1>
+
+<input type="hidden" asp-for="Id" />
+
+@{
+    if (!Model.AreaViewModels.Any())
+    {
+        <h3>No Found Permission.</h3>
+    }
+    else
+    {
+        foreach (var areaViewModel in Model.AreaViewModels)
+        {
+            foreach (var controllerViewModel in areaViewModel.ControllerViewModels)
+            {
+                foreach (var actionViewModel in controllerViewModel.ActionViewModels)
+                {
+                    var value = $"{areaViewModel.Area.Type}|{controllerViewModel.Controller.Type}|{actionViewModel.Action.Type}";
+                    var text = $"{areaViewModel.Area.Value}|{controllerViewModel.Controller.Value}|{actionViewModel.Action.Value}";
+
+                    <div class="card-footer">
+                        <input type="checkbox" value="@value" checked="@actionViewModel.Selected" />@text
+                    </div>
+                }
+            }
+        }
+
+        <br />
+        <button class="btn btn-primary" id="btn-roleClaims" type="button">Submit</button>
+    }
+}
+
+<script>
+
+    $(document).ready(function() {
+
+        $("#btn-roleClaims").click(function () {
+
+            var selectedClaims = [];
+            $("input:checkbox[name=type]:checked").each(function() {
+                selectedClaims.push($(this).val());
+            });
+
+            $.ajax({
+                method: "POST",
+                url: @Url.Action("RoleClaims","Role"),
+                data: {
+                    Id: $("#Id").val(),
+                    SelectedClaims: selectedClaims
+                }
+            });
+
+        });
+
+    });
+</script>

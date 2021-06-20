@@ -1,17 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DynamicPermission.AspNetCore.BaseSetting.Identity;
-using DynamicPermission.AspNetCore.BaseSetting.Identity.PermissionManager;
+using DynamicPermission.AspNetCore.Configurations.Identity;
+using DynamicPermission.AspNetCore.Configurations.Identity.PermissionManager;
 using DynamicPermission.AspNetCore.Context;
-using DynamicPermission.AspNetCore.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using DynamicPermission.AspNetCore.Repository.AppSetting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -86,8 +80,8 @@ namespace DynamicPermission.AspNetCore
 
             services.AddMemoryCache();
             services.AddHttpContextAccessor();
-            services.AddScoped<IUtilities, Utilities>();
-            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+            //services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+            services.AddScoped<IAppSettingService, AppSettingService>();
 
             #endregion
 

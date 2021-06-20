@@ -1,0 +1,40 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model List<Microsoft.AspNetCore.Identity.IdentityRole>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Role</h1>
+
+<a asp-controller="Role" asp-action="Add" class="btn btn-success">Add Role</a>
+
+@{
+    if (!Model.Any())
+    {
+        <h3>No Role Found.</h3>
+    }
+    else
+    {
+        foreach (var identityRole in Model)
+        {
+            <div class="card mt-2">
+                <div class="card-header">
+                    Name = @identityRole.Name
+                </div>
+
+                <div class="card-footer">
+
+
+                    <a asp-controller="Role" asp-action="RoleClaims" asp-route-id="@identityRole.Id"
+                       class="btn btn-primary">Role Permissions</a>
+
+                    <a asp-controller="Role" asp-action="Delete" asp-route-id="@identityRole.Id"
+                       class="btn btn-danger">Delete Role</a>
+
+
+                </div>
+
+            </div>
+        }
+    }
+}

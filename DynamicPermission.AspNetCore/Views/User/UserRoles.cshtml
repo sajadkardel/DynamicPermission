@@ -1,0 +1,53 @@
+﻿@model DynamicPermission.AspNetCore.ViewModels.User.UserRolesViewModel
+@{
+    ViewData["Title"] = "UserRoles";
+}
+
+<input type="hidden" asp-for="@Model.Id" />
+<input type="hidden" asp-for="@Model.IsAdd" />
+
+<h1>User Roles</h1>
+
+
+@{
+    if (!Model.ValidRoles.Any())
+    {
+        <h3>No Found Role.</h3>
+    }
+    else
+    {
+        foreach (var validRole in Model.ValidRoles)
+        {
+            <div class="card-footer">
+                <input type="checkbox" value="@validRole" />@validRole
+            </div>
+
+        }
+
+        <br />
+        <button class="btn btn-primary" id="btn-userRoles" type="button">Submit</button>
+    }
+}
+
+<script>
+
+    $("#btn-userRoles").click(function() {
+
+        var selectedRoles = [];
+        $("input:checkbox[name=type]:checked").each(function() {
+            selectedRoles.push($(this).val());
+        });
+
+        $.ajax({
+            method: "POST",
+            url: @Url.Action("UserRoles","User"),
+            data: {
+                Id: $("#Id").val(),
+                IsBad: $("#IsBad").val(),
+                SelectedRoles: selectedRoles
+            }
+        });
+
+    });
+
+</script>

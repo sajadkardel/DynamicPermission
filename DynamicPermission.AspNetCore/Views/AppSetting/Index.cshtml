@@ -1,9 +1,10 @@
-﻿@model List<DynamicPermission.AspNetCore.Models.AppSetting>
+﻿@model List<DynamicPermission.AspNetCore.Entities.AppSetting>
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>App Settings</h1>
+
 <div class="btn-group mt-4 mb-4">
     <a asp-action="RoleValidationGuid" class="btn btn-primary">RoleValidationGuid</a>
 </div>
@@ -11,7 +12,7 @@
 
 @if (!Model.Any())
 {
-    <h2>No setting found</h2>
+    <h3>No setting found.</h3>
 }
 else
 {
