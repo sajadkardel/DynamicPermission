@@ -80,9 +80,9 @@ namespace DynamicPermission.AspNetCore
 
             services.AddMemoryCache();
             services.AddHttpContextAccessor();
-            //services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
             services.AddScoped<IAppSettingService, AppSettingService>();
-
+            
             #endregion
 
         }

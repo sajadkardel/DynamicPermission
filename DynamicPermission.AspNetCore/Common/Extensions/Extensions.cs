@@ -27,7 +27,7 @@ namespace DynamicPermission.AspNetCore.Common.Extensions
             {
                 Action = new Claim(arg.Action.Name, arg.Action.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? "NULL"),
                 ParentController = new Claim(arg.Controller.Name, arg.Controller.GetTypeInfo().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? "NULL"),
-                Selected = roleClaims.Select(claim => claim.Value).Contains($"{arg.Area.Select(v => v.ConstructorArguments[0].Value?.ToString()).FirstOrDefault()}|{arg.Controller.Name}|{arg.Action.Name}")
+                Selected = roleClaims.Select(claim => claim.Value).Contains($"{arg.Area.Select(v => v.ConstructorArguments[0].Value?.ToString()).FirstOrDefault() ?? "NoArea"}|{arg.Controller.Name}|{arg.Action.Name}")
             }).ToList();
             var controllerViewModels = areaControllerActionList.Select(arg => new ControllerViewModel
             {

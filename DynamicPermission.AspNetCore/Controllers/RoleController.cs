@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DynamicPermission.AspNetCore.Controllers
 {
-    [DisplayName("RoleController(just for show)")]
+    [DisplayName("RoleController")]
     public class RoleController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -20,7 +21,7 @@ namespace DynamicPermission.AspNetCore.Controllers
             _roleManager = roleManager;
         }
 
-        [DisplayName("Index(just for show)")]
+        [DisplayName("Index")]
         public IActionResult Index()
         {
             var roles = _roleManager.Roles.ToList();
@@ -28,7 +29,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpGet]
-        [DisplayName("Add(just for show)")]
+        [DisplayName("Add")]
         public IActionResult Add()
         {
             return View();
@@ -46,7 +47,7 @@ namespace DynamicPermission.AspNetCore.Controllers
             return RedirectToAction("Index");
         }
 
-        [DisplayName("Delete(just for show)")]
+        [DisplayName("Delete")]
         public async Task<IActionResult> Delete(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
@@ -60,7 +61,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         #region RoleClaims
 
         [HttpGet]
-        [DisplayName("RoleClaims(just for show)")]
+        [DisplayName("RoleClaims")]
         public async Task<IActionResult> RoleClaims(string id)
         {
             var role = await _roleManager.FindByIdAsync(id);
@@ -75,25 +76,23 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RoleClaims(RoleClaimsViewModel model)
         {
             var role = await _roleManager.FindByIdAsync(model.Id);
             var roleClaims = await _roleManager.GetClaimsAsync(role);
 
-            if (model.SelectedClaims.Any())
+            if (!model.SelectedClaims.Any()) throw new Exception("Choose at least one permission");
+
+            foreach (var roleClaim in roleClaims)
             {
-                foreach (var roleClaim in roleClaims)
-                {
-                    await _roleManager.RemoveClaimAsync(role, roleClaim);
-                }
-                foreach (var selectedClaim in model.SelectedClaims)
-                {
-                    await _roleManager.AddClaimAsync(role, new Claim(role.Name, selectedClaim));
-                }
+                await _roleManager.RemoveClaimAsync(role, roleClaim);
+            }
+            foreach (var selectedClaim in model.SelectedClaims)
+            {
+                await _roleManager.AddClaimAsync(role, new Claim(role.Name, selectedClaim));
             }
 
-            return RedirectToAction("Index");
+            return Ok();
         }
 
         #endregion

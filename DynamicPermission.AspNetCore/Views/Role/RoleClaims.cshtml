@@ -15,15 +15,39 @@
         {
             foreach (var controllerViewModel in areaViewModel.ControllerViewModels)
             {
-                foreach (var actionViewModel in controllerViewModel.ActionViewModels)
-                {
-                    var value = $"{areaViewModel.Area.Type}|{controllerViewModel.Controller.Type}|{actionViewModel.Action.Type}";
-                    var text = $"{areaViewModel.Area.Value}|{controllerViewModel.Controller.Value}|{actionViewModel.Action.Value}";
+                <table>
+                    <tr>
+                        <th>
+                           @controllerViewModel.Controller.Value
+                        </th>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            @{
+                                foreach (var actionViewModel in controllerViewModel.ActionViewModels)
+                                {
+                                    var value = $"{areaViewModel.Area.Type}|{controllerViewModel.Controller.Type}|{actionViewModel.Action.Type}";
+                                    var text = $"{areaViewModel.Area.Value}|{controllerViewModel.Controller.Value}|{actionViewModel.Action.Value}";
 
-                    <div class="card-footer">
-                        <input type="checkbox" value="@value" checked="@actionViewModel.Selected" />@text
-                    </div>
-                }
+                                    if (actionViewModel.Selected)
+                                    {
+                                        <div class="col-6">
+                                            <input type="checkbox" value="@value" checked="checked"/>@text
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div>
+                                            <input type="checkbox" value="@value"/>@text
+                                        </div>
+                                    }
+                                }
+                            }
+                        </td>
+                    </tr>
+                </table>
+              
             }
         }
 
@@ -32,6 +56,8 @@
     }
 }
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
 <script>
 
     $(document).ready(function() {
@@ -39,17 +65,19 @@
         $("#btn-roleClaims").click(function () {
 
             var selectedClaims = [];
-            $("input:checkbox[name=type]:checked").each(function() {
+            $('input[type=checkbox]:checked').each(function (){
                 selectedClaims.push($(this).val());
             });
 
             $.ajax({
                 method: "POST",
-                url: @Url.Action("RoleClaims","Role"),
+                url: "@Url.Action("RoleClaims","Role")",
                 data: {
                     Id: $("#Id").val(),
                     SelectedClaims: selectedClaims
                 }
+            }).done(function (){
+                window.location.replace("@Url.Action("Index","Role")");
             });
 
         });

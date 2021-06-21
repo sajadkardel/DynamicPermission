@@ -16,36 +16,56 @@
     }
     else
     {
-        foreach (var validRole in Model.ValidRoles)
-        {
-            <div class="card-footer">
-                <input type="checkbox" value="@validRole" />@validRole
-            </div>
+        <table>
+            <tr>
+                <th>
+                    @Model.UserName
+                </th>
+            </tr>
 
-        }
+            @{
+                foreach (var validRole in Model.ValidRoles)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox" value="@validRole" name="sport"/>@validRole
+                        </td>
+                    </tr>
+                }
+            }
+        </table>
+
+
 
         <br />
         <button class="btn btn-primary" id="btn-userRoles" type="button">Submit</button>
     }
 }
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
 <script>
 
-    $("#btn-userRoles").click(function() {
+    $(document).ready(function() {
 
-        var selectedRoles = [];
-        $("input:checkbox[name=type]:checked").each(function() {
-            selectedRoles.push($(this).val());
-        });
+        $("#btn-userRoles").click(function() {
 
-        $.ajax({
-            method: "POST",
-            url: @Url.Action("UserRoles","User"),
-            data: {
-                Id: $("#Id").val(),
-                IsBad: $("#IsBad").val(),
-                SelectedRoles: selectedRoles
-            }
+            var selectedRoles = [];
+            $('input[type=checkbox]:checked').each(function (){
+                selectedRoles.push($(this).val());
+            });
+
+            $.ajax({
+                method: "POST",
+                url: "@Url.Action("UserRoles", "User")",
+                data: {
+                    Id: $("#Id").val(),
+                    IsAdd: $("#IsAdd").val(),
+                    SelectedRoles: selectedRoles
+                }
+            }).done(function (){
+                window.location.replace("@Url.Action("Index","User")");
+            });;
         });
 
     });

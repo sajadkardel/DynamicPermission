@@ -10,7 +10,7 @@ namespace DynamicPermission.AspNetCore.Controllers
     [DisplayName("HomeController(just for show)")]
     public class HomeController : Controller
     {
-        [DisplayName("Index(just for show)")]
+        [DisplayName("Index")]
         public IActionResult Index()
         {
             return View();

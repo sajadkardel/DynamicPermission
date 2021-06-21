@@ -21,7 +21,7 @@ namespace DynamicPermission.AspNetCore.Controllers
             _memoryCache = memoryCache;
         }
 
-        [DisplayName("Index(just for show)")]
+        [DisplayName("Index")]
         public IActionResult Index()
         {
             var model = _dbContext.AppSettings.ToList();
@@ -29,7 +29,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpGet]
-        [DisplayName("RoleValidationGuid(just for show)")]
+        [DisplayName("RoleValidationGuid")]
         public IActionResult RoleValidationGuid()
         {
             var roleValidationGuidSiteSetting = _dbContext.AppSettings.FirstOrDefault(t => t.Key == "RoleValidationGuid");
@@ -37,7 +37,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpGet]
-        [DisplayName("GenerateNewGuid(just for show)")]
+        [DisplayName("GenerateNewGuid")]
         public IActionResult GenerateNewGuid()
         {
             var roleValidationGuidSiteSetting = _dbContext.AppSettings.FirstOrDefault(t => t.Key == "RoleValidationGuid");

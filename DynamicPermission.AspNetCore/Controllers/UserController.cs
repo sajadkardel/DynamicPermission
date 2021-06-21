@@ -22,14 +22,14 @@ namespace DynamicPermission.AspNetCore.Controllers
             _roleManager = roleManager;
         }
 
-        [DisplayName("Index(just for show)")]
+        [DisplayName("Index")]
         public IActionResult Index()
         {
             var model = _userManager.Users.ToList();
             return View(model);
         }
 
-        [DisplayName("Add(just for show)")]
+        [DisplayName("Add")]
         public IActionResult Add()
         {
             return View();
@@ -55,7 +55,7 @@ namespace DynamicPermission.AspNetCore.Controllers
             return RedirectToAction("Index");
         }
 
-        [DisplayName("Delete(just for show)")]
+        [DisplayName("Delete")]
         public async Task<IActionResult> Delete(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
@@ -67,7 +67,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpGet]
-        [DisplayName("UpdateSecurityStamp(just for show)")]
+        [DisplayName("UpdateSecurityStamp")]
         public async Task<IActionResult> UpdateSecurityStamp(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
@@ -80,7 +80,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         #region UserRoles
 
         [HttpGet]
-        [DisplayName("UserRoles(just for show)")]
+        [DisplayName("UserRoles")]
         public async Task<IActionResult> UserRoles(string id,bool isAdd)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -91,13 +91,13 @@ namespace DynamicPermission.AspNetCore.Controllers
             return View(new UserRolesViewModel
             {
                 Id = id,
+                UserName = user.UserName,
                 IsAdd = isAdd,
                 ValidRoles = validRoles
             });
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UserRoles(UserRolesViewModel model)
         {
             var user = await _userManager.FindByIdAsync(model.Id);
@@ -111,7 +111,7 @@ namespace DynamicPermission.AspNetCore.Controllers
                 await _userManager.RemoveFromRolesAsync(user, model.SelectedRoles);
             }
 
-            return RedirectToAction("Index");
+            return Ok();
         }
 
         #endregion

@@ -22,7 +22,7 @@ namespace DynamicPermission.AspNetCore.Controllers
         }
 
         [HttpGet]
-        [DisplayName("Login(just for show)")]
+        [DisplayName("Login")]
         public IActionResult Login(string returnUrl = null)
         {
             if (_signInManager.IsSignedIn(User))
@@ -59,7 +59,7 @@ namespace DynamicPermission.AspNetCore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [DisplayName("LogOut(just for show)")]
+        [DisplayName("LogOut")]
         public async Task<IActionResult> LogOut()
         {
             await _signInManager.SignOutAsync();

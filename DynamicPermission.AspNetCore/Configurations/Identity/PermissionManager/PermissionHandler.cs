@@ -3,14 +3,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using DynamicPermission.AspNetCore.Context;
-using DynamicPermission.AspNetCore.Entities;
 using DynamicPermission.AspNetCore.Repository.AppSetting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace DynamicPermission.AspNetCore.Configurations.Identity.PermissionManager
@@ -25,11 +22,11 @@ namespace DynamicPermission.AspNetCore.Configurations.Identity.PermissionManager
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public PermissionHandler(IHttpContextAccessor contextAccessor, IMemoryCache memoryCache, IDataProtector protectorToken, IAppSettingService appSettingService, SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public PermissionHandler(IHttpContextAccessor contextAccessor, IMemoryCache memoryCache, IDataProtectionProvider dataProtectionProvider, IAppSettingService appSettingService, SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _contextAccessor = contextAccessor;
             _memoryCache = memoryCache;
-            _protectorToken = protectorToken;
+            _protectorToken = dataProtectionProvider.CreateProtector("RvgGuid"); ;
             _appSettingService = appSettingService;
             _signInManager = signInManager;
             _userManager = userManager;
@@ -39,47 +36,61 @@ namespace DynamicPermission.AspNetCore.Configurations.Identity.PermissionManager
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
             var httpContext = _contextAccessor.HttpContext;
-            var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return;
+            var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier); if (string.IsNullOrEmpty(userId)) return;
+            var user = await _userManager.FindByIdAsync(userId); if (user == null) return;
+            var userRoleNames = await _userManager.GetRolesAsync(user); if (!userRoleNames.Any()) return;
 
             var dbRoleValidationGuid = _memoryCache.GetOrCreate("RoleValidationGuid", p =>
             {
                 p.AbsoluteExpiration = DateTimeOffset.MaxValue;
                 return _appSettingService.DataBaseRoleValidationGuid();
             });
-
             SplitUserRequestedUrl(httpContext, out var areaAndActionAndControllerName);
-
             UnprotectRvgCookieData(httpContext, out var unprotectedRvgCookie);
 
             if (!IsRvgCookieDataValid(unprotectedRvgCookie, userId, dbRoleValidationGuid))
             {
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user == null) return;
-
                 AddOrUpdateRvgCookie(httpContext, dbRoleValidationGuid, userId);
-
                 await _signInManager.RefreshSignInAsync(user);
 
-                var userRolesId = await _userManager.GetRolesAsync(user);
+                foreach (var role in _roleManager.Roles)
+                {
+                    var roleClaims = await _roleManager.GetClaimsAsync(role);
+                    if (!roleClaims.Any(claim => claim.Type == role.Name && claim.Value == areaAndActionAndControllerName)) continue;
+                    foreach (var userRoleName in userRoleNames)
+                    {
+                        var userRole = _roleManager.Roles.FirstOrDefault(identityRole => identityRole.Name == userRoleName);
 
-                //var userRolesId = _dbContext.UserRoles.AsNoTracking()
-                //    .Where(r => r.UserId == userId)
-                //    .Select(r => r.RoleId)
-                //    .ToList();
-
-                if (!userRolesId.Any()) return;
-                var userHasClaims = _roleManager.Roles.AsNoTracking().Any(rc =>
-                    userRolesId.Contains(rc.Id) && rc.Name == areaAndActionAndControllerName);
-                if (userHasClaims) context.Succeed(requirement);
+                        if (role == userRole)
+                        {
+                            context.Succeed(requirement);
+                        }
+                    }
+                }
             }
-            else if (httpContext.User.HasClaim(areaAndActionAndControllerName, true.ToString()))
-                context.Succeed(requirement);
+            else
+            {
+                foreach (var role in _roleManager.Roles)
+                {
+                    var roleClaims = await _roleManager.GetClaimsAsync(role);
+                    if (!roleClaims.Any(claim => claim.Type == role.Name && claim.Value == areaAndActionAndControllerName)) continue;
+                    foreach (var userRoleName in userRoleNames)
+                    {
+                        var userRole = _roleManager.Roles.FirstOrDefault(identityRole => identityRole.Name == userRoleName);
+
+                        if (role == userRole)
+                        {
+                            context.Succeed(requirement);
+                        }
+                    }
+                }
+            }
+
         }
 
         #region Methods
 
-        private void SplitUserRequestedUrl(HttpContext httpContext, out string areaAndControllerAndActionName)
+        private static void SplitUserRequestedUrl(HttpContext httpContext, out string areaAndControllerAndActionName)
         {
             var areaName = httpContext.Request.RouteValues["area"]?.ToString() ?? "NoArea";
             var controllerName = httpContext.Request.RouteValues["controller"] + "Controller";
