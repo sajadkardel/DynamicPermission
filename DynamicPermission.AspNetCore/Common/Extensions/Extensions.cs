@@ -27,7 +27,7 @@ namespace DynamicPermission.AspNetCore.Common.Extensions
             {
                 Action = new Claim(arg.Action.Name, arg.Action.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? "NULL"),
                 ParentController = new Claim(arg.Controller.Name, arg.Controller.GetTypeInfo().GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? "NULL"),
-                Selected = roleClaims.Select(claim => claim.Value).Contains($"{arg.Area.Select(v => v.ConstructorArguments[0].Value?.ToString()).FirstOrDefault() ?? "NoArea"}|{arg.Controller.Name}|{arg.Action.Name}")
+                Selected = roleClaims != null && roleClaims.Select(claim => claim.Value).Contains($"{arg.Area.Select(v => v.ConstructorArguments[0].Value?.ToString()).FirstOrDefault() ?? "NoArea"}|{arg.Controller.Name}|{arg.Action.Name}")
             }).ToList();
             var controllerViewModels = areaControllerActionList.Select(arg => new ControllerViewModel
             {
@@ -39,7 +39,8 @@ namespace DynamicPermission.AspNetCore.Common.Extensions
             {
                 Area = new Claim(arg.Area.Select(v => v.ConstructorArguments[0].Value?.ToString()).FirstOrDefault() ?? "NoArea", arg.Area.Select(v => v.ConstructorArguments[0].Value?.ToString()).FirstOrDefault() ?? "NoArea"),
                 ControllerViewModels = controllerViewModels.Where(model =>
-                    model.ParentArea.Type == arg.Area.Select(v => v.ConstructorArguments[0].Value?.ToString()).FirstOrDefault() || model.ParentArea.Type == "NoArea" && model.Controller.Value != "NULL").ToList()
+                    model.ParentArea.Type == arg.Area.Select(v => v.ConstructorArguments[0].Value?.ToString()).FirstOrDefault() || model.ParentArea.Type == "NoArea").ToList()
+                    .Where(model => model.Controller.Value != "NULL").ToList()
             }).ToList().GroupBy(model => model.Area.Type).Select(models => models.First()).ToList();
 
             return areaViewModels;
