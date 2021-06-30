@@ -9,6 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace DynamicPermission.AspNetCore.Controllers
 {
+    [AllowAnonymous]
     [DisplayName("AppSettingController(just for show)")]
     public class AppSettingController : Controller
     {

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DynamicPermission.AspNetCore.Controllers
 {
-    [Authorize("DynamicPermission")]
     [DisplayName("TestPermissionController(or any Name)")]
     public class TestPermissionController : Controller
     {

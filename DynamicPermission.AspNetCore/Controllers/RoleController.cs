@@ -6,11 +6,13 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using DynamicPermission.AspNetCore.Common.Extensions;
 using DynamicPermission.AspNetCore.ViewModels.Role;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DynamicPermission.AspNetCore.Controllers
 {
+    [AllowAnonymous]
     [DisplayName("RoleController")]
     public class RoleController : Controller
     {

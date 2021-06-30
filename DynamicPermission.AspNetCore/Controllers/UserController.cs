@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using DynamicPermission.AspNetCore.ViewModels.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DynamicPermission.AspNetCore.Controllers
 {
+    [AllowAnonymous]
     [DisplayName("UserController(just for show)")]
     public class UserController : Controller
     {
