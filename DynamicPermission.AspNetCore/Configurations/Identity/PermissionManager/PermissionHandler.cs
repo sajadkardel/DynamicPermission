@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace DynamicPermission.AspNetCore.Configurations.Identity.PermissionManager
@@ -45,6 +46,7 @@ namespace DynamicPermission.AspNetCore.Configurations.Identity.PermissionManager
                 p.AbsoluteExpiration = DateTimeOffset.MaxValue;
                 return _appSettingService.DataBaseRoleValidationGuid();
             });
+
             SplitUserRequestedUrl(httpContext, out var areaAndActionAndControllerName);
             UnprotectRvgCookieData(httpContext, out var unprotectedRvgCookie);
 
@@ -53,35 +55,25 @@ namespace DynamicPermission.AspNetCore.Configurations.Identity.PermissionManager
                 AddOrUpdateRvgCookie(httpContext, dbRoleValidationGuid, userId);
                 await _signInManager.RefreshSignInAsync(user);
 
-                foreach (var role in _roleManager.Roles)
+                foreach (var userRoleName in userRoleNames)
                 {
-                    var roleClaims = await _roleManager.GetClaimsAsync(role);
-                    if (!roleClaims.Any(claim => claim.Type == role.Name && claim.Value == areaAndActionAndControllerName)) continue;
-                    foreach (var userRoleName in userRoleNames)
+                    var userRole = await _roleManager.Roles.SingleOrDefaultAsync(identityRole => identityRole.Name == userRoleName);
+                    var roleClaims = await _roleManager.GetClaimsAsync(userRole);
+                    if (roleClaims.Any(claim => claim.Type == userRole.Name && claim.Value == areaAndActionAndControllerName))
                     {
-                        var userRole = _roleManager.Roles.FirstOrDefault(identityRole => identityRole.Name == userRoleName);
-
-                        if (role == userRole)
-                        {
-                            context.Succeed(requirement);
-                        }
+                        context.Succeed(requirement);
                     }
                 }
             }
             else
             {
-                foreach (var role in _roleManager.Roles)
+                foreach (var userRoleName in userRoleNames)
                 {
-                    var roleClaims = await _roleManager.GetClaimsAsync(role);
-                    if (!roleClaims.Any(claim => claim.Type == role.Name && claim.Value == areaAndActionAndControllerName)) continue;
-                    foreach (var userRoleName in userRoleNames)
+                    var userRole = await _roleManager.Roles.SingleOrDefaultAsync(identityRole => identityRole.Name == userRoleName);
+                    var roleClaims = await _roleManager.GetClaimsAsync(userRole);
+                    if (roleClaims.Any(claim => claim.Type == userRole.Name && claim.Value == areaAndActionAndControllerName))
                     {
-                        var userRole = _roleManager.Roles.FirstOrDefault(identityRole => identityRole.Name == userRoleName);
-
-                        if (role == userRole)
-                        {
-                            context.Succeed(requirement);
-                        }
+                        context.Succeed(requirement);
                     }
                 }
             }
