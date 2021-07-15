@@ -1,4 +1,4 @@
-# DynamicPermission
+# DynamicPermission⛔
 
 Using the tricks in this project, you can design a dynamic access level system that applies to all requests that can be sent by the program.
 In short, each user has roles, and each role has claims that are the same urls or accessible requests in that role.
